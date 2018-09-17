@@ -55,10 +55,10 @@ public class SQlite {
         return conn;
     }
         
-    public static void insert(String name, double networth, double planets, String url) {
+    public static void insert(String name, double networth, double planets, Connection conn) {
         String sql = "INSERT INTO familyTracker(name,networth,planets) VALUES(?,?,?)";
  
-        try (Connection conn = connect(url);
+        try (//Connection conn = connect(url);
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, name);
             pstmt.setDouble(2, networth);
