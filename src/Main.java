@@ -18,29 +18,21 @@ import java.util.regex.Pattern;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
-		
-		
+				
 		String filename = "ICdata.db";
 		String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
-		
-		Document doc = Jsoup.connect("https://imperialconflict.com/families/view.php?family=6113").get();
-		
-		
+				
+		Document doc = Jsoup
+				.connect("https://imperialconflict.com/families/view.php?family=6113")
+				.get();
+				
 		SQlite.createNewDatabase(url);
 		SQlite.createNewTable(url);
 		
-
 		Connection conn = SQlite.connect(url);
 		
 		getFamilyList(doc, conn);
-		
-		//DB stuff
-		//SQlite.createNewDatabase(url);
-		//Connection conn = SQlite.connect(url);
-        
-        SQlite.selectAll();
-        
-		
+        SQlite.selectAll();        
 		}
 		   
    private static void getFamilyList(Document doc, Connection conn) {
@@ -57,9 +49,6 @@ public class Main {
 			 int planets = Integer.parseInt(familyMember.group(5)); 
 			 
 			 SQlite.insert(name, networth, planets, conn);
-		     //System.out.println(familyMember.group(1));
-		     //System.out.println(familyMember.group(2));
-		     //System.out.println(familyMember.group(5));
 		}					
    }
    
