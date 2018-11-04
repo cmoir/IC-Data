@@ -9,8 +9,9 @@ import java.sql.ResultSet;
 
 public class SQlite {
 
-	static String filename = "ICdata.db";
-	static String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
+	//static String family = "6233";
+	//static String filename = "IC_"+family+".db";
+	//static String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
     public static void createNewDatabase(String url) {
     	 
         try (Connection conn = DriverManager.getConnection(url)) {
@@ -30,6 +31,7 @@ public class SQlite {
         // SQL statement for creating a new table
         String sql = "CREATE TABLE IF NOT EXISTS familyTracker (\n"
                 + "	id integer PRIMARY KEY,\n"
+        		+ " turn real,\n"
                 + "	name text NOT NULL,\n"
                 + "	networth real,\n"
                 + "	planets real\n"
@@ -48,29 +50,30 @@ public class SQlite {
         Connection conn = null;
         try {
             conn = DriverManager.getConnection(url);
-            System.out.println("Connection to SQLite has been established.");
+           // System.out.println("Connection to SQLite has been established.");
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         } 
         return conn;
     }
         
-    public static void insert(String name, double networth, double planets, Connection conn) {
-        String sql = "INSERT INTO familyTracker(name,networth,planets) VALUES(?,?,?)";
+    public static void insert(int turn, String name, int networth, int planets, Connection conn) {
+        String sql = "INSERT INTO familyTracker(turn,name,networth,planets) VALUES(?,?,?,?)";
  
         try (//Connection conn = connect(url);
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, name);
-            pstmt.setDouble(2, networth);
-            pstmt.setDouble(3, planets);
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        	pstmt.setInt(1, turn);
+            pstmt.setString(2, name);
+            pstmt.setInt(3, networth);
+            pstmt.setInt(4, planets);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
-    public static void selectAll(){
-        String sql = "SELECT id, name, networth, planets FROM familyTracker";
+    public static void selectAll(String url){
+        String sql = "SELECT id, turn, name, networth, planets FROM familyTracker";
         
         try (Connection conn = connect(url);
              Statement stmt  = conn.createStatement();
@@ -78,14 +81,30 @@ public class SQlite {
             
             // loop through the result set
             while (rs.next()) {
-                System.out.println(rs.getInt("id") +  "\t" + 
+                System.out.println(rs.getInt("turn") +  "\t" + 
                                    rs.getString("name") + "\t" +
-                                   rs.getDouble("networth") + "\t" +
-                				   rs.getDouble("planets"));	
+                                   rs.getInt("networth") + "\t" +
+                				   rs.getInt("planets"));	
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
+    }
+    
+    public static int selectTurn(String url){
+        String sql = "SELECT MAX(turn) as maxturn FROM familyTracker";
+        int turn = 0;
+        try (Connection conn = connect(url);
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+            
+            // loop through the result set
+            turn = rs.getInt("maxturn");	
+            
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+		return turn;
     }
 
 
