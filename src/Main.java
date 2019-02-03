@@ -14,6 +14,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,53 +25,59 @@ public class Main {
 			
 		
 		int FamCount = 12;
-		int firstFam = 6229;
-		
-	    for (int x = firstFam; x <= (firstFam+FamCount-1); x++)
-	    {
-	    	getAllFamilyData(x); 
-	    	Thread.sleep(3000) ;
-	    } 
+		int firstFam = 6360;
+		int i = 0;
 		
 	
-	/*
-		String family = "6236";
-		
-		String filename = "IC_"+family+".db";
-		String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
-				
-		Document doc = Jsoup
-				.connect("https://imperialconflict.com/families/view.php?family="+family)
-				.get();
-				
-		SQlite.createNewDatabase(url);
-		SQlite.createNewTable(url);
-		
-		Connection conn = SQlite.connect(url);   
-		
-		getFamilyList(doc, conn, url);
-        SQlite.selectAll(url);        
+	
+	while (i <= 48) { 	
+		for (int x = firstFam; x <= (firstFam+FamCount-1); x++)
+	    	{
+			Calendar cal = Calendar.getInstance();
+			int min = cal.get(Calendar.MINUTE);
+			
+			if ((min > 10 )) {			
+				getAllFamilyData(x); 
+				Thread.sleep(3000);}
+			else 
+			{
+				Thread.sleep(600000);
+				getAllFamilyData(x); 
+				Thread.sleep(3000);
+	    	} 
+	    	}
+		i++;
+		Thread.sleep(3500000);
 		}
-		*/
 	}
+
+	
 	
    private static void getAllFamilyData(int familyIn) throws IOException, ParseException	{
 		
-	   
+	   	
 	    String family = Integer.toString(familyIn);
 		
-		String filename = "IC_"+family+".db";
+		String filename = "IC_MW_Round_67.db";
 		String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
-				
+		int maxTurn = SQlite.selectTurn(url, family);	
+		int currentTurn = turn();
 	
+		
+		
+		if (maxTurn < currentTurn || maxTurn == 0) {
+				SQlite.createNewDatabase(url);
+				SQlite.createNewTable(url);
 				
-		SQlite.createNewDatabase(url);
-		SQlite.createNewTable(url);
-		
-		Connection conn = SQlite.connect(url);   
-		
-		getFamilyList(conn, url, family );
-        SQlite.selectAll(url);        
+				Connection conn = SQlite.connect(url);   
+				
+				getFamilyList(conn, url, family );
+				
+				System.out.println("_______________________________________________________________________");
+				System.out.println("Family " + family);
+				
+		        SQlite.selectAll(url, family);    
+			}
    		}
 	   
    
@@ -81,30 +88,29 @@ public class Main {
 
 		
 		int turn = turn();
-		if (SQlite.selectTurn(url) < turn) {
+		//if ((SQlite.selectTurn(url, familyS) < turn) || (SQlite.selectTurn(url, familyS) == 0 )) {
 			Document doc = Jsoup
 					.connect("https://imperialconflict.com/families/view.php?family="+familyS)
 					.get();
 		   
 		    Element family = doc.getElementById("family-view");
 			String familyData = family.toString();
-			//System.out.println(familyData);
-			
-			Pattern familyMemberPattern = Pattern.compile("(?s)empire=\\d{6}\\\">([\\w+\\s*\\w*]*)</a>.</td>\\s*<td><a href=..view_race.php.id=\\d+.>[\\w+\\s*\\w*!*]*</a></td>\\s*<td>((\\d{0,3},)?(\\d{3},)?\\d{0,3})</td>\\s{5,6}<td>(\\d*)</td> ");
+					
+			Pattern familyMemberPattern = Pattern.compile("(?s)empire=\\d{6}\\\">([\\w+\\s*\\w*]*)</a>.</td>\\s*<td><a href=..view_race.php.id=\\d+.>[\\w+\\s*\\w*!*'*$*\\.*]*</a></td>\\s*<td>((\\d{0,3},)?(\\d{3},)?\\d{0,3})</td>\\s{5,6}<td>(\\d*)</td> ");
 			Matcher familyMember = familyMemberPattern.matcher(familyData);
 			
 			while (familyMember.find())	{
 					 String name = familyMember.group(1);
 					 int networth = Integer.parseInt(familyMember.group(2).replace(",",""));
 					 int planets = Integer.parseInt(familyMember.group(5)); 
-					 SQlite.insert(turn, name, networth, planets, conn);
+					 SQlite.insert(turn, familyS, name, networth, planets, conn);
 				 }
-		}
+		//}
    }
 		
    private static int turn() throws ParseException {
-		int baseturn = 736;
-		Date baseDateTime = new SimpleDateFormat( "dd/MM/yyyy HH:mm" ).parse( "25/10/2018 21:04" );
+		int baseturn = -33;
+		Date baseDateTime = new SimpleDateFormat( "dd/MM/yyyy HH:mm" ).parse( "03/01/2019 20:07" );
 		Date endDate = new Date();  
 		long secs = (endDate.getTime() - baseDateTime.getTime()) / 1000;
 		int hours = (int) secs / 3600;    
