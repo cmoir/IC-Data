@@ -23,72 +23,88 @@ public class ICData {
 
 	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
 
-		int FamCount = 12;
-		int firstFam = 6360;
-		int i = 0;
+		for (int retries = 0;; retries++) {
+			try {
+				int FamCount = 12;
+				int firstFam = 6360;
+				int i = 0;
 
-		while (i <= 48) {
-			for (int x = firstFam; x <= (firstFam + FamCount - 1); x++) {
-				Calendar cal = Calendar.getInstance();
-				int min = cal.get(Calendar.MINUTE);
+				while (i <= 1000) {
+					for (int x = firstFam; x <= (firstFam + FamCount - 1); x++) {
+						Calendar cal = Calendar.getInstance();
+						int min = cal.get(Calendar.MINUTE);
 
-				if ((min > 10)) {
-					getAllFamilyData(x);
-					Thread.sleep(3000);
+						if ((min > 10)) {
+							getAllFamilyData(x);
+							Thread.sleep(3000);
+						} else {
+							Thread.sleep(600000);
+							getAllFamilyData(x);
+							Thread.sleep(3000);
+						}
+					}
+					i++;
+					Thread.sleep(1500000);
+				}
+			} catch (Exception e) {
+				if (retries < 100) {
+					Thread.sleep(60000);
+					continue;
 				} else {
-					Thread.sleep(600000);
-					getAllFamilyData(x);
-					Thread.sleep(3000);
+					throw e;
 				}
 			}
-			i++;
-			Thread.sleep(3500000);
 		}
 	}
 
 	private static void getAllFamilyData(int familyIn) throws IOException, ParseException {
+		try {
+			String family = Integer.toString(familyIn);
 
-		String family = Integer.toString(familyIn);
+			String filename = "IC_MW_Round_67.db";
+			String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
+			int maxTurn = SQlite.selectTurn(url, family);
+			int currentTurn = turn();
+			if (maxTurn < currentTurn || maxTurn == 0) {
+				SQlite.createNewDatabase(url);
+				SQlite.createNewTable(url);
 
-		String filename = "IC_MW_Round_67.db";
-		String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
-		int maxTurn = SQlite.selectTurn(url, family);
-		int currentTurn = turn();
+				Connection conn = SQlite.connect(url);
 
-		if (maxTurn < currentTurn || maxTurn == 0) {
-			SQlite.createNewDatabase(url);
-			SQlite.createNewTable(url);
+				getFamilyList(conn, url, family);
 
-			Connection conn = SQlite.connect(url);
+				System.out.println("_______________________________________________________________________");
+				System.out.println("Family " + family);
 
-			getFamilyList(conn, url, family);
-
-			System.out.println("_______________________________________________________________________");
-			System.out.println("Family " + family);
-
-			SQlite.selectAll(url, family);
+				SQlite.selectAll(url, family);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 	}
 
 	private static void getFamilyList(Connection conn, String url, String familyS) throws ParseException, IOException {
+		try {
+			int turn = turn();
+			// if ((SQlite.selectTurn(url, familyS) < turn) || (SQlite.selectTurn(url,
+			// familyS) == 0 )) {
+			Document doc = Jsoup.connect("https://imperialconflict.com/families/view.php?family=" + familyS).get();
 
-		int turn = turn();
-		// if ((SQlite.selectTurn(url, familyS) < turn) || (SQlite.selectTurn(url,
-		// familyS) == 0 )) {
-		Document doc = Jsoup.connect("https://imperialconflict.com/families/view.php?family=" + familyS).get();
+			Element family = doc.getElementById("family-view");
+			String familyData = family.toString();
 
-		Element family = doc.getElementById("family-view");
-		String familyData = family.toString();
+			Pattern familyMemberPattern = Pattern.compile(
+					"(?s)empire=\\d{6}\\\">([\\w+\\s*\\w*]*)</a>.</td>\\s*<td><a href=..view_race.php.id=\\d+.>[\\w+\\s*\\w*!*'*$*\\.*]*</a></td>\\s*<td>((\\d{0,3},)?(\\d{3},)?\\d{0,3})</td>\\s{5,6}<td>(\\d*)</td> ");
+			Matcher familyMember = familyMemberPattern.matcher(familyData);
 
-		Pattern familyMemberPattern = Pattern.compile(
-				"(?s)empire=\\d{6}\\\">([\\w+\\s*\\w*]*)</a>.</td>\\s*<td><a href=..view_race.php.id=\\d+.>[\\w+\\s*\\w*!*'*$*\\.*]*</a></td>\\s*<td>((\\d{0,3},)?(\\d{3},)?\\d{0,3})</td>\\s{5,6}<td>(\\d*)</td> ");
-		Matcher familyMember = familyMemberPattern.matcher(familyData);
-
-		while (familyMember.find()) {
-			String name = familyMember.group(1);
-			int networth = Integer.parseInt(familyMember.group(2).replace(",", ""));
-			int planets = Integer.parseInt(familyMember.group(5));
-			SQlite.insert(turn, familyS, name, networth, planets, conn);
+			while (familyMember.find()) {
+				String name = familyMember.group(1);
+				int networth = Integer.parseInt(familyMember.group(2).replace(",", ""));
+				int planets = Integer.parseInt(familyMember.group(5));
+				SQlite.insert(turn, familyS, name, networth, planets, conn);
+			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 	}
 
