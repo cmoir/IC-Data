@@ -20,16 +20,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ICData {
+	
+	static String filename = "IC_MW_Round_68.db";
+	static String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
 
 	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
 
+
+		SQlite.createNewDatabase(url);
+		SQlite.createNewTable(url);
+		
+		
 		for (int retries = 0;; retries++) {
 			try {
-				int FamCount = 12;
-				int firstFam = 6360;
+				int FamCount = 15;
+				int firstFam = 6491;
 				int i = 0;
 
-				while (i <= 1000) {
+				while (i <= 5000) {
 					for (int x = firstFam; x <= (firstFam + FamCount - 1); x++) {
 						Calendar cal = Calendar.getInstance();
 						int min = cal.get(Calendar.MINUTE);
@@ -61,13 +69,11 @@ public class ICData {
 		try {
 			String family = Integer.toString(familyIn);
 
-			String filename = "IC_MW_Round_67.db";
-			String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
+
 			int maxTurn = SQlite.selectTurn(url, family);
 			int currentTurn = turn();
 			if (maxTurn < currentTurn || maxTurn == 0) {
-				SQlite.createNewDatabase(url);
-				SQlite.createNewTable(url);
+
 
 				Connection conn = SQlite.connect(url);
 
@@ -109,8 +115,8 @@ public class ICData {
 	}
 
 	private static int turn() throws ParseException {
-		int baseturn = -33;
-		Date baseDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("03/01/2019 20:07");
+		int baseturn = -38;
+		Date baseDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("17/02/2019 20:07");
 		Date endDate = new Date();
 		long secs = (endDate.getTime() - baseDateTime.getTime()) / 1000;
 		int hours = (int) secs / 3600;
