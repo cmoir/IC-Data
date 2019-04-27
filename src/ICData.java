@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public class ICData {
 	
-	static String filename = "IC_MW_Round_68.db";
+	static String filename = "IC_MW_Round_69.db";
 	static String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
 
 	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
@@ -34,7 +34,7 @@ public class ICData {
 		for (int retries = 0;; retries++) {
 			try {
 				int FamCount = 15;
-				int firstFam = 6491;
+				int firstFam = 6606;
 				int i = 0;
 
 				while (i <= 5000) {
@@ -43,8 +43,7 @@ public class ICData {
 						int min = cal.get(Calendar.MINUTE);
 
 						if ((min > 10)) {
-							getAllFamilyData(x);
-							Thread.sleep(3000);
+							getAllFamilyData(x);							Thread.sleep(3000);
 						} else {
 							Thread.sleep(600000);
 							getAllFamilyData(x);
@@ -100,7 +99,7 @@ public class ICData {
 			String familyData = family.toString();
 
 			Pattern familyMemberPattern = Pattern.compile(
-					"(?s)empire=\\d{6}\\\">([\\w+\\s*\\w*]*)</a>.</td>\\s*<td><a href=..view_race.php.id=\\d+.>[\\w+\\s*\\w*!*'*$*\\.*]*</a></td>\\s*<td>((\\d{0,3},)?(\\d{3},)?\\d{0,3})</td>\\s{5,6}<td>(\\d*)</td> ");
+					"(?s)empire=\\d{6}\\\">([[a-zA-Z0-9_]\\w+\\s*[a-zA-Z0-9_]]*)</a>.</td>\\s*<td><a href=..view_race.php.id=\\d+.>[\\w+\\s*\\w*?*!*'*$*\\.*]*</a></td>\\s*<td>((\\d{0,3},)?(\\d{3},)?\\d{0,3})</td>\\s{5,6}<td>(\\d*)</td> ");
 			Matcher familyMember = familyMemberPattern.matcher(familyData);
 
 			while (familyMember.find()) {
@@ -115,8 +114,8 @@ public class ICData {
 	}
 
 	private static int turn() throws ParseException {
-		int baseturn = -38;
-		Date baseDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("17/02/2019 20:07");
+		int baseturn = 365;
+		Date baseDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("22/04/2019 9:07");
 		Date endDate = new Date();
 		long secs = (endDate.getTime() - baseDateTime.getTime()) / 1000;
 		int hours = (int) secs / 3600;
