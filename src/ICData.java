@@ -13,7 +13,13 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -21,20 +27,19 @@ import java.util.regex.Pattern;
 
 public class ICData {
 	
-	static String filename = "IC_MW_Round_69.db";
-	static String url = "jdbc:sqlite:E:/Java/sqlite/db/" + filename;
+	static String filename = "IC_MW_Round_70.db";
+	static String url = "jdbc:sqlite:F:/Videos/Home Videos/OneDrive/IC/" + filename;
 
 	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
 
 
 		SQlite.createNewDatabase(url);
 		SQlite.createNewTable(url);
-		
-		
+		writing((SQlite.selectAllData(url)));
 		for (int retries = 0;; retries++) {
 			try {
-				int FamCount = 15;
-				int firstFam = 6606;
+				int FamCount = 10;
+				int firstFam = 7048;
 				int i = 0;
 
 				while (i <= 5000) {
@@ -51,8 +56,13 @@ public class ICData {
 						}
 					}
 					i++;
+					writing((SQlite.selectAllData(url)));
 					Thread.sleep(1500000);
+					
 				}
+				
+			
+				;
 			} catch (Exception e) {
 				if (retries < 100) {
 					Thread.sleep(60000);
@@ -62,6 +72,7 @@ public class ICData {
 				}
 			}
 		}
+		
 	}
 
 	private static void getAllFamilyData(int familyIn) throws IOException, ParseException {
@@ -83,6 +94,15 @@ public class ICData {
 
 				SQlite.selectAll(url, family);
 			}
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	private static void outputDataTxt() throws IOException, ParseException {
+		try {
+			System.out.println(SQlite.selectAllData(url));
+			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -114,8 +134,8 @@ public class ICData {
 	}
 
 	private static int turn() throws ParseException {
-		int baseturn = 365;
-		Date baseDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("22/04/2019 9:07");
+		int baseturn = 89;
+		Date baseDateTime = new SimpleDateFormat("dd/MM/yyyy HH:mm").parse("29/05/2019 21:07");
 		Date endDate = new Date();
 		long secs = (endDate.getTime() - baseDateTime.getTime()) / 1000;
 		int hours = (int) secs / 3600;
@@ -123,4 +143,17 @@ public class ICData {
 		return turn;
 	}
 
+	public static void writing(String text) {
+        try {
+            //Whatever the file path is.
+            File statText = new File("F:/Videos/Home Videos/OneDrive/IC/"+filename+".txt");
+            FileOutputStream is = new FileOutputStream(statText);
+            OutputStreamWriter osw = new OutputStreamWriter(is);    
+            Writer w = new BufferedWriter(osw);
+            w.write(text);
+            w.close();
+        } catch (IOException e) {
+            System.err.println("Problem writing to the file statsTest.txt");
+        }
+    }
 }

@@ -90,6 +90,30 @@ public class SQlite {
         }
     }
     
+    public static String selectAllData(String url){
+        
+    	String out = "";
+    	String sql = "SELECT id, turn, family, name, networth, planets FROM familyTracker order by family ASC, turn ASC;";
+        
+        try (Connection conn = connect(url);
+             Statement stmt  = conn.createStatement();
+             ResultSet rs    = stmt.executeQuery(sql)){
+            while (rs.next()) {
+                out = out+ rs.getInt("turn") +  "\t" + 
+                				   rs.getString("family") + "\t" +
+                                   rs.getString("name") + "\t" +
+                                   rs.getInt("networth") + "\t" +
+                				   rs.getInt("planets") + "\r\n";	
+            }
+         return out;
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            return out;
+            
+        }
+    }
+    
+    
     public static int selectTurn(String url, String family){
         String sql = "SELECT MAX(turn) as maxturn FROM familyTracker where family = '"+ family+"'";
         int turn = -33;
