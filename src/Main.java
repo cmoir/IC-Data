@@ -25,14 +25,29 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ICData {
+public class Main {
 	
 	static String filename = "IC_MW_Round_70.db";
 	static String url = "jdbc:sqlite:F:/Videos/Home Videos/OneDrive/IC/" + filename;
 
-	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
+	public static void main(String[] args) {
+		try {
+			extract();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
-
+		
+	}
+	
+	private static void extract() throws IOException, ParseException, InterruptedException {
 		SQlite.createNewDatabase(url);
 		SQlite.createNewTable(url);
 		writing((SQlite.selectAllData(url)));
@@ -42,7 +57,7 @@ public class ICData {
 				int firstFam = 7048;
 				int i = 0;
 
-				while (i <= 5000) {
+				//while (i <= 5000) {
 					for (int x = firstFam; x <= (firstFam + FamCount - 1); x++) {
 						Calendar cal = Calendar.getInstance();
 						int min = cal.get(Calendar.MINUTE);
@@ -57,9 +72,9 @@ public class ICData {
 					}
 					i++;
 					writing((SQlite.selectAllData(url)));
-					Thread.sleep(1500000);
+					//Thread.sleep(1500000);
 					
-				}
+				//}
 				
 			
 				;
@@ -73,7 +88,10 @@ public class ICData {
 			}
 		}
 		
+		
+		
 	}
+	
 
 	private static void getAllFamilyData(int familyIn) throws IOException, ParseException {
 		try {
